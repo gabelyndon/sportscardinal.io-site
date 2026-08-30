@@ -1,0 +1,127 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../../lib/site";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft))
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Group posts by year, then by month, preserving newest-first order.
+const byYear = new Map();
+for (const post of posts) {
+	const d = post.data.date;
+	const year = d.getUTCFullYear();
+	const month = d.toLocaleString("en-US", { month: "long", timeZone: "UTC" });
+
+	if (!byYear.has(year)) byYear.set(year, new Map());
+	const months = byYear.get(year);
+	if (!months.has(month)) months.set(month, []);
+	months.get(month).push(post);
+}
+
+const fmtDay = (d: Date) => d.toLocaleString("en-US", { day: "numeric", timeZone: "UTC" });
+---
+
+<BaseLayout title={`Archive — ${SITE_NAME}`} description="Every post on the blog, grouped by month.">
+	<section class="archive">
+		<h1>Every post, by date</h1>
+		<p class="intro">
+			A new post goes up every Saturday. {posts.length} so far.
+		</p>
+
+		{[...byYear.entries()].map(([year, months]) => (
+			<section class="year">
+				<h2>{year}</h2>
+				{[...months.entries()].map(([month, monthPosts]) => (
+					<div class="month">
+						<h3>{month}</h3>
+						<ul>
+							{monthPosts.map((post) => (
+								<li>
+									<time datetime={post.data.date.toISOString().slice(0, 10)}>
+										{fmtDay(post.data.date)}
+									</time>
+									<a href={`/blog/${post.data.slug ?? post.id}/`}>{post.data.title}</a>
+								</li>
+							))}
+						</ul>
+					</div>
+				))}
+			</section>
+		))}
+	</section>
+</BaseLayout>
+
+<style>
+	.archive {
+		max-width: 42rem;
+		margin: 0 auto;
+		padding: 3rem 1.25rem 5rem;
+	}
+
+	h1 {
+		margin: 0 0 0.5rem;
+	}
+
+	.intro {
+		margin: 0 0 3rem;
+		opacity: 0.7;
+	}
+
+	.year {
+		margin-bottom: 3rem;
+	}
+
+	.year > h2 {
+		margin: 0 0 1.25rem;
+		padding-bottom: 0.4rem;
+		border-bottom: 1px solid currentColor;
+	}
+
+	.month {
+		display: grid;
+		grid-template-columns: 7rem 1fr;
+		gap: 0 1rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.month > h3 {
+		margin: 0;
+		font-size: 0.95rem;
+		font-weight: 500;
+		opacity: 0.6;
+		line-height: 1.7;
+	}
+
+	.month ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.month li {
+		display: flex;
+		gap: 0.75rem;
+		align-items: baseline;
+		line-height: 1.7;
+		margin-bottom: 0.4rem;
+	}
+
+	.month time {
+		flex: 0 0 1.5rem;
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+		opacity: 0.5;
+	}
+
+	@media (max-width: 34rem) {
+		.month {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+		}
+
+		.month > h3 {
+			line-height: 1.3;
+		}
+	}
+</style>
