@@ -4,14 +4,22 @@ import { SITE_NAME } from "../lib/site";
 interface Props {
 	title: string;
 	description?: string;
+	/** Root-relative path, e.g. "/about/" — not a full URL. The custom
+	 * domain isn't live yet and astro.config.mjs has no `site` set, so
+	 * Astro.url isn't reliable for absolute URLs on this static build;
+	 * a relative canonical resolves correctly against whatever domain
+	 * is actually serving the page, dev or prod, now or after the
+	 * domain switch. */
+	canonical?: string;
 }
-const { title, description } = Astro.props;
+const { title, description, canonical } = Astro.props;
 ---
 
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/png" href="/favicon.png" />
+		{canonical && <link rel="canonical" href={canonical} />}
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		{description && <meta name="description" content={description} />}
