@@ -2,6 +2,7 @@
 // "Guess the Price of the Card" — standalone mechanics prototype.
 // Uses the starter deck from src/data/cards.ts (real players/sets, estimated
 // prices). Swap CARDS for a SportsCardsPro CSV import once that's wired up.
+import "../styles/tokens.css";
 import { SITE_NAME } from "../lib/site";
 ---
 
@@ -15,19 +16,10 @@ import { SITE_NAME } from "../lib/site";
 		<meta property="og:site_name" content={SITE_NAME} />
 		<meta property="og:title" content={`Guess the Price — ${SITE_NAME}`} />
 		<title>Guess the Price — {SITE_NAME}</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet" />
 		<style>
-			:root {
-				color-scheme: dark;
-				--bg: #0b0c10;
-				--panel: #16181f;
-				--panel-border: #262a35;
-				--text: #f4f5f7;
-				--muted: #9aa0ac;
-				--accent: #f4b731;
-				--good: #4ade80;
-				--bad: #f87171;
-			}
-
 			* {
 				box-sizing: border-box;
 			}
@@ -35,7 +27,7 @@ import { SITE_NAME } from "../lib/site";
 			body {
 				margin: 0;
 				min-height: 100vh;
-				background: var(--bg);
+				background: var(--ink-950);
 				color: var(--text);
 				font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 				display: flex;
@@ -54,8 +46,13 @@ import { SITE_NAME } from "../lib/site";
 			}
 
 			h1 {
-				font-size: 1.6rem;
-				margin: 0 0 0.35rem;
+				font-family: "Anton", system-ui, sans-serif;
+				font-weight: 400;
+				font-size: 2.1rem;
+				letter-spacing: 0.01em;
+				text-transform: uppercase;
+				margin: 0.3rem 0 0.4rem;
+				text-shadow: 0 0 1.5rem color-mix(in srgb, var(--accent) 40%, transparent);
 			}
 
 			header p {
@@ -81,16 +78,25 @@ import { SITE_NAME } from "../lib/site";
 			}
 
 			.stat {
-				background: var(--panel);
-				border: 1px solid var(--panel-border);
+				background: var(--ink-900);
+				border: 1px solid var(--ink-700);
 				border-radius: 10px;
-				padding: 0.6rem 0.5rem;
+				padding: 0.65rem 0.5rem;
 				text-align: center;
 			}
 
 			.stat .value {
-				font-size: 1.25rem;
-				font-weight: 700;
+				font-family: "Anton", system-ui, sans-serif;
+				font-weight: 400;
+				font-size: 1.5rem;
+			}
+
+			.stat .value.accent {
+				color: var(--accent);
+			}
+
+			.stat .value.pulse {
+				animation: pop 0.4s ease-out;
 			}
 
 			.stat .label {
@@ -101,19 +107,32 @@ import { SITE_NAME } from "../lib/site";
 			}
 
 			.card-panel {
-				background: var(--panel);
-				border: 1px solid var(--panel-border);
-				border-radius: 16px;
+				background: var(--ink-900);
+				border: 1px solid var(--ink-700);
+				border-radius: 18px;
 				overflow: hidden;
+				box-shadow: 0 20px 45px -20px rgba(0, 0, 0, 0.6);
 			}
 
 			.card-art {
-				height: 220px;
+				height: 260px;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				font-size: 4.5rem;
+				font-size: 5rem;
 				position: relative;
+				overflow: hidden;
+			}
+
+			.card-art::after {
+				content: "";
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.4) 50%, transparent 58%);
+				transform: translateX(-130%);
+			}
+			.card-art.shine-play::after {
+				animation: shine 1s ease-out;
 			}
 
 			.badge {
@@ -132,8 +151,11 @@ import { SITE_NAME } from "../lib/site";
 			}
 
 			.card-body h2 {
-				margin: 0 0 0.2rem;
-				font-size: 1.2rem;
+				font-family: "Anton", system-ui, sans-serif;
+				font-weight: 400;
+				letter-spacing: 0.01em;
+				margin: 0 0 0.25rem;
+				font-size: 1.4rem;
 			}
 
 			.card-body .subtitle {
@@ -152,8 +174,8 @@ import { SITE_NAME } from "../lib/site";
 				display: flex;
 				align-items: center;
 				padding: 0 0.5rem;
-				background: #1d2029;
-				border: 1px solid var(--panel-border);
+				background: var(--ink-800);
+				border: 1px solid var(--ink-700);
 				border-radius: 10px 0 0 10px;
 				border-right: none;
 				color: var(--muted);
@@ -162,8 +184,8 @@ import { SITE_NAME } from "../lib/site";
 			input[type="number"] {
 				flex: 1;
 				min-width: 0;
-				background: #1d2029;
-				border: 1px solid var(--panel-border);
+				background: var(--ink-800);
+				border: 1px solid var(--ink-700);
 				border-left: none;
 				border-radius: 0 10px 10px 0;
 				color: var(--text);
@@ -178,39 +200,79 @@ import { SITE_NAME } from "../lib/site";
 			button {
 				border: none;
 				border-radius: 10px;
-				padding: 0.7rem 1rem;
+				padding: 0.75rem 1rem;
 				font-size: 0.95rem;
-				font-weight: 600;
+				font-weight: 700;
 				cursor: pointer;
+				transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 			}
 
 			#guess-btn {
 				margin-top: 0.7rem;
 				width: 100%;
 				background: var(--accent);
-				color: #201a03;
+				color: var(--on-accent);
+				box-shadow: 0 10px 25px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+			}
+			#guess-btn:hover:not(:disabled) {
+				background: var(--accent-hover);
+				transform: translateY(-1px);
 			}
 			#guess-btn:disabled {
 				opacity: 0.5;
 				cursor: not-allowed;
+				box-shadow: none;
 			}
 
 			#next-btn {
 				margin-top: 0.7rem;
 				width: 100%;
-				background: #2a2e3a;
+				background: var(--ink-800);
 				color: var(--text);
+				border: 1px solid var(--ink-700);
+			}
+			#next-btn:hover {
+				border-color: var(--accent);
+				transform: translateY(-1px);
 			}
 
 			.result {
 				margin-top: 1rem;
-				border-top: 1px dashed var(--panel-border);
+				border-top: 1px dashed var(--ink-700);
 				padding-top: 1rem;
 				display: none;
 			}
 
 			.result.visible {
 				display: block;
+			}
+
+			.score-reveal {
+				text-align: center;
+				margin-bottom: 0.4rem;
+				animation: pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+			}
+
+			.score-num {
+				font-family: "Anton", system-ui, sans-serif;
+				font-weight: 400;
+				font-size: 3.5rem;
+				line-height: 1;
+				color: var(--accent);
+			}
+
+			.score-reveal.shimmer .score-num {
+				background: linear-gradient(90deg, var(--accent), var(--foil-purple), var(--foil-blue), var(--accent));
+				background-size: 300% 100%;
+				-webkit-background-clip: text;
+				background-clip: text;
+				color: transparent;
+				animation: shimmer 1.8s linear infinite;
+			}
+
+			.score-max {
+				font-size: 1.1rem;
+				color: var(--muted);
 			}
 
 			.result-row {
@@ -228,18 +290,50 @@ import { SITE_NAME } from "../lib/site";
 				text-align: center;
 				font-size: 1.05rem;
 				font-weight: 700;
-				margin: 0.6rem 0 0.2rem;
+				margin: 0.2rem 0 0.9rem;
 			}
 
 			.feedback.good {
-				color: var(--good);
+				color: var(--accent);
 			}
 			.feedback.bad {
-				color: var(--bad);
+				color: var(--muted);
 			}
 
 			.hidden {
 				display: none !important;
+			}
+
+			@keyframes shine {
+				to {
+					transform: translateX(130%);
+				}
+			}
+
+			@keyframes pop {
+				from {
+					opacity: 0;
+					transform: scale(0.85);
+				}
+				to {
+					opacity: 1;
+					transform: scale(1);
+				}
+			}
+
+			@keyframes shimmer {
+				to {
+					background-position: -300% 0;
+				}
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.card-art.shine-play::after,
+				.score-reveal,
+				.stat .value.pulse,
+				.score-reveal.shimmer .score-num {
+					animation: none;
+				}
 			}
 		</style>
 	</head>
@@ -289,6 +383,10 @@ import { SITE_NAME } from "../lib/site";
 					<button id="guess-btn">Lock In Guess</button>
 
 					<div class="result" id="result">
+						<div class="score-reveal" id="score-reveal">
+							<span class="score-num" id="score-num">0</span><span class="score-max">/100</span>
+						</div>
+						<p class="feedback" id="result-feedback"></p>
 						<div class="result-row">
 							<span>Your guess</span>
 							<span class="val" id="result-guess"></span>
@@ -301,11 +399,6 @@ import { SITE_NAME } from "../lib/site";
 							<span>Ratio</span>
 							<span class="val" id="result-ratio"></span>
 						</div>
-						<div class="result-row">
-							<span>Points earned</span>
-							<span class="val" id="result-score"></span>
-						</div>
-						<p class="feedback" id="result-feedback"></p>
 						<button id="next-btn">Next Card →</button>
 					</div>
 				</div>
@@ -318,6 +411,10 @@ import { SITE_NAME } from "../lib/site";
 			import { computeScore, ratioInWords, STREAK_THRESHOLD } from "../lib/scoring";
 
 			const BEST_STREAK_KEY = "cardgame:bestStreak";
+			// Score-reveal gets the shimmer treatment (the mascot's iridescent
+			// wing colors sweeping across the number) only above this bar — it's
+			// a flourish for standout guesses, not every result.
+			const SHIMMER_THRESHOLD = 85;
 
 			let current: GameCard | null = null;
 			let streak = 0;
@@ -336,10 +433,11 @@ import { SITE_NAME } from "../lib/site";
 				guessBtn: document.getElementById("guess-btn") as HTMLButtonElement,
 				nextBtn: document.getElementById("next-btn") as HTMLButtonElement,
 				result: document.getElementById("result")!,
+				scoreReveal: document.getElementById("score-reveal")!,
+				scoreNum: document.getElementById("score-num")!,
 				resultGuess: document.getElementById("result-guess")!,
 				resultActual: document.getElementById("result-actual")!,
 				resultRatio: document.getElementById("result-ratio")!,
-				resultScore: document.getElementById("result-score")!,
 				resultFeedback: document.getElementById("result-feedback")!,
 			};
 
@@ -361,10 +459,19 @@ import { SITE_NAME } from "../lib/site";
 
 			function feedbackFor(score: number): { text: string; good: boolean } {
 				if (score === 100) return { text: "🎯 Nailed it exactly!", good: true };
-				if (score >= 85) return { text: "🔥 Incredible guess!", good: true };
+				if (score >= SHIMMER_THRESHOLD) return { text: "🔥 Incredible guess!", good: true };
 				if (score >= STREAK_THRESHOLD) return { text: "👍 Solid guess!", good: true };
 				if (score >= 20) return { text: "😬 Not bad, but off.", good: false };
 				return { text: "❌ Way off!", good: false };
+			}
+
+			/** Restarts a CSS animation on an element by forcing a reflow between
+			 * removing and re-adding its class — otherwise re-adding a class the
+			 * element already has is a no-op and the animation doesn't replay. */
+			function replay(el: HTMLElement, className: string) {
+				el.classList.remove(className);
+				void el.offsetWidth;
+				el.classList.add(className);
 			}
 
 			function renderCard(card: GameCard) {
@@ -377,6 +484,7 @@ import { SITE_NAME } from "../lib/site";
 				els.guessInput.disabled = false;
 				els.guessBtn.disabled = false;
 				els.result.classList.remove("visible");
+				replay(els.art, "shine-play");
 				els.guessInput.focus();
 			}
 
@@ -385,10 +493,12 @@ import { SITE_NAME } from "../lib/site";
 				renderCard(current);
 			}
 
-			function updateStats(lastScore: number | null) {
+			function updateStats(lastScore: number | null, streakJustIncreased: boolean) {
 				els.score.textContent = lastScore === null ? "–" : String(lastScore);
 				els.streak.textContent = `${streak} 🔥`;
 				els.best.textContent = String(bestStreak);
+				els.streak.classList.toggle("accent", streak > 0);
+				if (streakJustIncreased) replay(els.streak, "pulse");
 			}
 
 			function submitGuess() {
@@ -408,23 +518,27 @@ import { SITE_NAME } from "../lib/site";
 				els.resultGuess.textContent = validGuess ? formatUsd(guess) : `"${raw}" (invalid)`;
 				els.resultActual.textContent = `${formatUsd(current.price)} (as of ${formatAsOf(current.priceAsOf)})`;
 				els.resultRatio.textContent = ratioInWords(guess, current.price);
-				els.resultScore.textContent = `${score} / 100`;
+				els.scoreNum.textContent = String(score);
+				els.scoreReveal.classList.toggle("shimmer", score >= SHIMMER_THRESHOLD);
 
 				const { text, good } = feedbackFor(score);
 				els.resultFeedback.textContent = text;
 				els.resultFeedback.classList.toggle("good", good);
 				els.resultFeedback.classList.toggle("bad", !good);
 
+				// .result flips from display:none to visible here, which is what
+				// restarts .score-reveal's pop animation each round — no JS needed.
 				els.result.classList.add("visible");
 				els.guessInput.disabled = true;
 				els.guessBtn.disabled = true;
 
-				streak = score >= STREAK_THRESHOLD ? streak + 1 : 0;
+				const streakIncreased = score >= STREAK_THRESHOLD;
+				streak = streakIncreased ? streak + 1 : 0;
 				if (streak > bestStreak) {
 					bestStreak = streak;
 					localStorage.setItem(BEST_STREAK_KEY, String(bestStreak));
 				}
-				updateStats(score);
+				updateStats(score, streakIncreased);
 				els.nextBtn.focus();
 			}
 
@@ -434,7 +548,7 @@ import { SITE_NAME } from "../lib/site";
 			});
 			els.nextBtn.addEventListener("click", nextRound);
 
-			updateStats(null);
+			updateStats(null, false);
 			nextRound();
 		</script>
 	</body>

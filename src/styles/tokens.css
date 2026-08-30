@@ -1,0 +1,47 @@
+/*
+ * Design tokens for SportsCardinal.io, pulled from the cardinal mascot
+ * artwork (public/images/cardinal-logo-*.png) rather than picked
+ * independently. Extracted by sampling every opaque pixel in the source
+ * PNGs, bucketing by hue/saturation/value into five families (bright red,
+ * deep red, near-black navy, iridescent purple, iridescent blue), and
+ * averaging within each bucket.
+ *
+ * --accent is the ONE functional accent color for the whole site — every
+ * button, link, focus ring, and highlight uses it, nothing else competes
+ * with it. --foil-* are supporting tones sampled from the same artwork
+ * (the mascot's iridescent wing/chest) but are used only for the game's
+ * score-reveal shimmer, never as UI accents in their own right.
+ *
+ * Imported directly (not @import'd) in each page that uses it — currently
+ * index.astro and game.astro. Not yet adopted by BaseLayout.astro/blog or
+ * a future store; do that as those get their own pass.
+ */
+
+:root {
+	color-scheme: dark;
+
+	/* ink: near-black navy, sampled from the mascot's facial mask/shadow.
+	   950 is page background; each step up is a lighter surface. */
+	--ink-950: #07041e;
+	--ink-900: #0e0b28;
+	--ink-800: #171232;
+	--ink-700: #241c44;
+	--ink-600: #372a5e;
+
+	/* the one accent: cardinal red, sampled from its brightest feathers.
+	   -hover is a lightened tint for hover/focus; -deep is a sampled
+	   shadow-red for pressed states and gradient stops. */
+	--accent: #ec1528;
+	--accent-hover: #ff3b48;
+	--accent-deep: #620415;
+	--on-accent: #fff7f5;
+
+	/* iridescent foil, sampled from the mascot's wing/chest highlight —
+	   brightened ~15% from the raw sample so the shimmer reads on a dark
+	   background. Score-reveal only; see the file header. */
+	--foil-purple: #9a4fc2;
+	--foil-blue: #3a56c9;
+
+	--text: #f5f3fa;
+	--muted: #a79fc0;
+}

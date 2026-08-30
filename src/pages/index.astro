@@ -1,4 +1,5 @@
 ---
+import "../styles/tokens.css";
 import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 ---
 
@@ -13,63 +14,141 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 		<meta property="og:title" content={SITE_NAME} />
 		<meta property="og:description" content={SITE_TAGLINE} />
 		<title>{SITE_NAME}</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet" />
 		<style>
-			:root {
-				color-scheme: dark;
+			* {
+				box-sizing: border-box;
 			}
+
 			body {
 				margin: 0;
 				min-height: 100vh;
-				background: #0b0c10;
-				color: #f4f5f7;
+				background: var(--ink-950);
+				color: var(--text);
 				font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				text-align: center;
 				padding: 2rem;
+				overflow-x: hidden;
 			}
+
+			.hero {
+				position: relative;
+				animation: rise 0.6s ease-out both;
+			}
+
+			.glow {
+				position: absolute;
+				inset: -4rem -6rem auto;
+				height: 22rem;
+				background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 35%, transparent), transparent 70%);
+				filter: blur(10px);
+				z-index: -1;
+				animation: pulse 4s ease-in-out infinite;
+			}
+
 			.logo {
-				height: 5rem;
+				height: 7rem;
 				width: auto;
+				filter: drop-shadow(0 0 1.5rem color-mix(in srgb, var(--accent) 55%, transparent));
 			}
+
 			h1 {
-				margin: 0.75rem 0 0.5rem;
+				font-family: "Anton", system-ui, sans-serif;
+				font-weight: 400;
+				font-size: clamp(2.5rem, 8vw, 4rem);
+				letter-spacing: 0.01em;
+				text-transform: uppercase;
+				margin: 1rem 0 0.6rem;
+				text-shadow: 0 0 2rem color-mix(in srgb, var(--accent) 45%, transparent);
 			}
-			p {
-				color: #9aa0ac;
+
+			p.tagline {
+				color: var(--muted);
+				font-size: 1.05rem;
+				max-width: 32rem;
+				margin: 0 auto;
 			}
+
 			a.cta {
 				display: inline-block;
-				margin-top: 1.5rem;
-				background: #f4b731;
-				color: #201a03;
+				margin-top: 1.75rem;
+				background: var(--accent);
+				color: var(--on-accent);
 				font-weight: 700;
+				font-size: 1.05rem;
 				text-decoration: none;
-				padding: 0.75rem 1.5rem;
-				border-radius: 10px;
+				padding: 0.9rem 1.9rem;
+				border-radius: 999px;
+				box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+				transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 			}
+			a.cta:hover {
+				background: var(--accent-hover);
+				transform: translateY(-2px) scale(1.03);
+				box-shadow: 0 14px 36px -6px color-mix(in srgb, var(--accent) 80%, transparent);
+			}
+			a.cta:active {
+				transform: translateY(0) scale(0.99);
+			}
+
 			.links {
-				margin-top: 0.85rem;
+				margin-top: 1.1rem;
 				display: flex;
 				gap: 1.25rem;
 				justify-content: center;
 			}
 			.links a {
-				color: #9aa0ac;
+				color: var(--muted);
 				text-decoration: none;
 				font-size: 0.9rem;
+				transition: color 0.15s ease;
 			}
 			.links a:hover {
-				color: #f4f5f7;
+				color: var(--text);
+			}
+
+			@keyframes rise {
+				from {
+					opacity: 0;
+					transform: translateY(14px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@keyframes pulse {
+				0%,
+				100% {
+					opacity: 0.55;
+				}
+				50% {
+					opacity: 0.9;
+				}
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				.hero {
+					animation: none;
+				}
+				.glow {
+					animation: none;
+				}
 			}
 		</style>
 	</head>
 	<body>
-		<div>
+		<div class="hero">
+			<div class="glow"></div>
 			<img class="logo" src="/images/logo-header.png" alt="" width="139" height="200" />
 			<h1>{SITE_NAME}</h1>
-			<p>Under construction — blog, store, and the price-guessing game are coming together here.</p>
+			<p class="tagline">Under construction — blog, store, and the price-guessing game are coming together here.</p>
 			<a class="cta" href="/game">🎯 Play Guess the Price</a>
 			<div class="links">
 				<a href="/blog">Read the blog</a>
