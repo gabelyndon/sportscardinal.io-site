@@ -1,23 +1,14 @@
 # Decap CMS configuration.
 #
-# TODO(auth backend): the `backend` section below is a placeholder and
-# WILL NOT WORK until oauth-worker/ is deployed and its GitHub OAuth App
-# is registered — see oauth-worker/README.md for the full walkthrough
-# (Netlify Identity + Git Gateway is deprecated, so we're not using that).
-#
-# Once oauth-worker/README.md's setup is complete, replace the `backend:`
-# block below with:
-#
-#   backend:
-#     name: github
-#     repo: gabelyndon/sportscardinal.io-site
-#     branch: main
-#     base_url: https://sportscardinal-cms-auth.gabelyndon.workers.dev
-#
-# and change site_url below to the real site URL.
+# Auth: GitHub via oauth-worker/ (a vendored sveltia-cms-auth Cloudflare
+# Worker — see oauth-worker/README.md), not Netlify Identity/Git Gateway
+# (deprecated).
 
 backend:
-  name: git-gateway # placeholder only — see TODO above, this is not configured
+  name: github
+  repo: gabelyndon/sportscardinal.io-site
+  branch: main
+  base_url: https://sportscardinal-cms-auth.gabelyndon.workers.dev
 
 # Where the CMS commits go and how the built site finds them.
 site_url: https://sportscardinal-io-site.gabelyndon.workers.dev
