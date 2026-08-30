@@ -1,4 +1,6 @@
 ---
+import { SITE_NAME } from "../lib/site";
+
 interface Props {
 	title: string;
 	description?: string;
@@ -14,6 +16,9 @@ const { title, description } = Astro.props;
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		{description && <meta name="description" content={description} />}
+		<meta property="og:site_name" content={SITE_NAME} />
+		<meta property="og:title" content={title} />
+		{description && <meta property="og:description" content={description} />}
 		<title>{title}</title>
 		<style>
 			:root {
@@ -43,11 +48,22 @@ const { title, description } = Astro.props;
 				margin: 0 auto;
 				padding: 2.5rem 1.25rem 4rem;
 			}
+			header.site {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 1rem;
+				flex-wrap: wrap;
+				margin-bottom: 2.5rem;
+			}
+			header.site .brand {
+				font-weight: 700;
+				text-decoration: none;
+				letter-spacing: -0.01em;
+			}
 			nav.site {
 				display: flex;
 				gap: 1rem;
-				justify-content: center;
-				margin-bottom: 2.5rem;
 				font-size: 0.9rem;
 			}
 			nav.site a {
@@ -62,11 +78,13 @@ const { title, description } = Astro.props;
 	</head>
 	<body>
 		<div class="wrap">
-			<nav class="site">
-				<a href="/">Home</a>
-				<a href="/blog">Blog</a>
-				<a href="/game">Game</a>
-			</nav>
+			<header class="site">
+				<a class="brand" href="/">{SITE_NAME}</a>
+				<nav class="site">
+					<a href="/blog">Blog</a>
+					<a href="/game">Game</a>
+				</nav>
+			</header>
 			<slot />
 		</div>
 	</body>

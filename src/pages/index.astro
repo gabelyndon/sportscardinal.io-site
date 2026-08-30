@@ -1,4 +1,5 @@
 ---
+import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 ---
 
 <html lang="en">
@@ -8,7 +9,11 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Card Site</title>
+		<meta name="description" content={SITE_TAGLINE} />
+		<meta property="og:site_name" content={SITE_NAME} />
+		<meta property="og:title" content={SITE_NAME} />
+		<meta property="og:description" content={SITE_TAGLINE} />
+		<title>{SITE_NAME}</title>
 		<style>
 			:root {
 				color-scheme: dark;
@@ -59,7 +64,7 @@
 	</head>
 	<body>
 		<div>
-			<h1>Card Site</h1>
+			<h1>{SITE_NAME}</h1>
 			<p>Under construction — blog, store, and the price-guessing game are coming together here.</p>
 			<a class="cta" href="/game">🎯 Play Guess the Price</a>
 			<div class="links">

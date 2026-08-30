@@ -1,6 +1,7 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../../lib/site";
 
 export async function getStaticPaths() {
 	const posts = await getCollection("blog", ({ data }) => !data.draft);
@@ -22,7 +23,7 @@ function formatDate(d: Date): string {
 }
 ---
 
-<BaseLayout title={`${post.data.title} — Card Site`} description={post.data.excerpt}>
+<BaseLayout title={`${post.data.title} — ${SITE_NAME}`} description={post.data.excerpt}>
 	<a class="back" href="/blog">← all posts</a>
 
 	<article>

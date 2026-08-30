@@ -3,6 +3,7 @@
 // Uses placeholder cards from src/data/cards.ts. Once the GoDaddy product
 // CSV is imported, swap CARDS for real inventory (id, title, price, image).
 import { CATEGORY_LABELS } from "../data/cards";
+import { SITE_NAME } from "../lib/site";
 ---
 
 <html lang="en">
@@ -11,7 +12,10 @@ import { CATEGORY_LABELS } from "../data/cards";
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Guess the Price</title>
+		<meta name="description" content={`Guess what this card sold for, see how close you got, and chase a streak — the price-guessing game on ${SITE_NAME}.`} />
+		<meta property="og:site_name" content={SITE_NAME} />
+		<meta property="og:title" content={`Guess the Price — ${SITE_NAME}`} />
+		<title>Guess the Price — {SITE_NAME}</title>
 		<style>
 			:root {
 				color-scheme: dark;
@@ -243,7 +247,7 @@ import { CATEGORY_LABELS } from "../data/cards";
 	<body>
 		<main>
 			<header>
-				<a class="back" href="/">← back</a>
+				<a class="back" href="/">← {SITE_NAME}</a>
 				<h1>🎯 Guess the Price</h1>
 				<p>See the card. Guess what it's worth. Chase the streak.</p>
 			</header>

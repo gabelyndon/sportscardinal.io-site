@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../../lib/site";
 
 const allPosts = await getCollection("blog", ({ data }) => !data.draft);
 const posts = allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -10,7 +11,10 @@ function formatDate(d: Date): string {
 }
 ---
 
-<BaseLayout title="Blog — Card Site" description="Updates, card-pricing notes, and behind-the-scenes posts.">
+<BaseLayout
+	title={`Blog — ${SITE_NAME}`}
+	description="Updates, card-pricing notes, and behind-the-scenes posts."
+>
 	<h1>Blog</h1>
 
 	{posts.length === 0 && <p class="empty">No posts yet — check back soon.</p>}
