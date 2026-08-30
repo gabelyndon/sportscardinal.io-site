@@ -5,8 +5,7 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="icon" type="image/png" href="/favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={SITE_TAGLINE} />
@@ -30,8 +29,12 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 				text-align: center;
 				padding: 2rem;
 			}
+			.logo {
+				height: 5rem;
+				width: auto;
+			}
 			h1 {
-				margin-bottom: 0.5rem;
+				margin: 0.75rem 0 0.5rem;
 			}
 			p {
 				color: #9aa0ac;
@@ -64,6 +67,7 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 	</head>
 	<body>
 		<div>
+			<img class="logo" src="/images/logo-header.png" alt="" width="139" height="200" />
 			<h1>{SITE_NAME}</h1>
 			<p>Under construction — blog, store, and the price-guessing game are coming together here.</p>
 			<a class="cta" href="/game">🎯 Play Guess the Price</a>
