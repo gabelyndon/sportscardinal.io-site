@@ -1,43 +1,46 @@
-# Astro Starter Kit: Minimal
+# SportsCardinal.io
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Astro site for SportsCardinal.io — a card blog, store, and a "Guess the Price" game, migrated off GoDaddy Website Builder.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## Structure
 
 ```text
 /
-├── public/
+├── public/admin/         Decap CMS (backend not wired up yet — see TODO in config.yml)
+├── oauth-worker/         Cloudflare Worker for Decap CMS's GitHub sign-in (see its own README)
 ├── src/
+│   ├── content/blog/     Blog posts (Markdown, edited via Decap CMS once wired up)
+│   ├── content.config.ts Blog collection schema
+│   ├── data/cards.ts     Placeholder card data for the price-guessing game
+│   ├── lib/
+│   │   ├── scoring.ts    Guess-the-price scoring (log-space Gaussian)
+│   │   └── site.ts       Business name/tagline — single source of truth
+│   ├── layouts/          Shared page layout (blog pages)
 │   └── pages/
-│       └── index.astro
-└── package.json
+│       ├── index.astro   Homepage
+│       ├── game.astro    Guess the Price game
+│       └── blog/         Blog listing + post pages
+└── wrangler.jsonc        Cloudflare Workers static-assets config for the main site
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Commands
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+| Command | Action |
+| :--- | :--- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Start local dev server at `localhost:4321` |
+| `npm run build` | Build production site to `./dist/` |
+| `npm run preview` | Preview the build locally before deploying |
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Deploying
 
-## 🧞 Commands
+Deployed via Cloudflare Workers (static assets), connected to this GitHub repo — pushes to `main` auto-deploy. See `wrangler.jsonc` for the assets config. The OAuth Worker that lets Decap CMS commit to this repo is a separate deploy — see [`oauth-worker/README.md`](./oauth-worker/README.md).
 
-All commands are run from the root of the project, from a terminal:
+## Roadmap
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- [x] Guess the Price game (placeholder card data)
+- [x] Blog (content collections + Decap CMS scaffold)
+- [ ] Wire up GitHub OAuth Worker so Decap CMS can publish
+- [ ] Store (Stripe Checkout), catalog imported from GoDaddy CSV export
+- [ ] Real card pricing data behind the game and store
+- [ ] Point the `sportscardinal.io` domain (registered at GoDaddy) at Cloudflare
