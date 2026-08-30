@@ -1,8 +1,10 @@
 ---
-title: "Welcome to the New Site"
+title: SportsCardinal.io
 date: 2026-08-15
-excerpt: "We've moved off GoDaddy Website Builder and rebuilt from scratch — here's what's changing and what's still coming."
-tags: ["announcement"]
+excerpt: We've moved off GoDaddy Website Builder and rebuilt from scratch —
+  here's what's changing and what's still coming.
+tags:
+  - announcement
 draft: false
 ---
 
