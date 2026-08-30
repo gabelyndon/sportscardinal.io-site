@@ -1,12 +1,9 @@
 # Copy to `.dev.vars` (already gitignored) for local `npm run dev` testing.
-# In production this Worker is deployed via Cloudflare's Git integration —
-# set these as Variables and Secrets in the Cloudflare dashboard instead
-# (Worker → Settings → Variables and Secrets). See README.md.
+#
+# GITHUB_CLIENT_ID and ALLOWED_DOMAINS live in wrangler.jsonc's `vars` block
+# instead (non-sensitive, so `wrangler dev` picks them up from there same as
+# production) — only the secret goes here. In production it's set as a
+# Secret in the Cloudflare dashboard (Worker → Settings → Variables and
+# Secrets). See README.md.
 
-GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
-
-# Comma-separated list of hostnames allowed to use this auth endpoint.
-# Strongly recommended — without it, anyone who finds this Worker's URL
-# could point their own CMS install at it. Wildcards allowed (*.example.com).
-ALLOWED_DOMAINS=sportscardinal-io-site.gabelyndon.workers.dev

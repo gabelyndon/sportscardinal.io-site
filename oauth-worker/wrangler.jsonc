@@ -1,5 +1,12 @@
 {
 	"name": "sportscardinal-cms-auth",
 	"main": "src/index.js",
-	"compatibility_date": "2026-08-29"
+	"compatibility_date": "2026-08-29",
+	// Non-sensitive only — `wrangler deploy` overwrites dashboard-set plain-text
+	// vars with whatever is here (encrypted secrets are unaffected). Keep
+	// GITHUB_CLIENT_SECRET out of this file; it's dashboard-only. See README.md.
+	"vars": {
+		"GITHUB_CLIENT_ID": "Ov23liKD4KbLMzFbpDuK",
+		"ALLOWED_DOMAINS": "sportscardinal-io-site.gabelyndon.workers.dev"
+	}
 }

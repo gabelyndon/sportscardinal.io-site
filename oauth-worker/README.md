@@ -34,17 +34,19 @@ Same flow as the main site, but pointed at this subfolder:
    - **Deploy command**: `npx wrangler deploy` (Cloudflare may infer this from `wrangler.jsonc` automatically)
 4. Save and deploy. It should come up at `https://sportscardinal-cms-auth.gabelyndon.workers.dev`.
 
-### 3. Set the secrets — in the Cloudflare dashboard, not in this repo
+### 3. Set the client secret — in the Cloudflare dashboard, not in this repo
+
+`GITHUB_CLIENT_ID` and `ALLOWED_DOMAINS` are non-sensitive and already committed in `wrangler.jsonc`'s `vars` block, so `wrangler deploy` sets them itself on every deploy. Only the client secret needs manual setup:
 
 Open the **`sportscardinal-cms-auth`** Worker in the dashboard → **Settings → Variables and Secrets → Add**:
 
 | Name | Type | Value |
 |---|---|---|
-| `GITHUB_CLIENT_ID` | Text | the Client ID from step 1 |
 | `GITHUB_CLIENT_SECRET` | **Secret** (encrypted) | the Client secret from step 1 |
-| `ALLOWED_DOMAINS` | Text | `sportscardinal-io-site.gabelyndon.workers.dev` |
 
-Save — this redeploys the Worker with those values baked in as runtime bindings. Nothing above ever needs to be committed to git; `.dev.vars.example` documents the same names for local `wrangler dev` testing only (copy it to a gitignored `.dev.vars` file if you need that).
+Save — this redeploys the Worker with that value baked in as a runtime binding. `.dev.vars.example` documents the same name for local `wrangler dev` testing only (copy it to a gitignored `.dev.vars` file if you need that; `wrangler dev` picks up `GITHUB_CLIENT_ID`/`ALLOWED_DOMAINS` from `wrangler.jsonc` automatically, same as production).
+
+> **Gotcha (bit us once, Aug 2026):** `wrangler deploy` — including the deploy Cloudflare's Git integration runs on every push — overwrites *all* dashboard-set plain-text vars with whatever `wrangler.jsonc`'s `vars` block contains, even if that block is empty or missing the key entirely. Encrypted secrets (`GITHUB_CLIENT_SECRET`) are a separate store and survive redeploys untouched. That's why a `GITHUB_CLIENT_ID`/`ALLOWED_DOMAINS` set only via the dashboard silently vanished on the next push, and `/admin` login started failing with no visible error (the worker's `/auth` step returns `MISCONFIGURED_CLIENT` — check `errorCode` in that endpoint's response body if this happens again). Fix: keep every non-sensitive var in `wrangler.jsonc` (as done above) so it's redeployed correctly every time; only what's genuinely sensitive belongs in the dashboard.
 
 ### 4. Point Decap CMS at it
 
