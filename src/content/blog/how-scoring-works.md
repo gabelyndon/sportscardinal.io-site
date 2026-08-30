@@ -1,7 +1,7 @@
 ---
 title: "How Scoring Works (And How to Actually Break 800)"
 excerpt: "A plain-English breakdown of how Guess The Price of the Card scores your guesses, why lowballing hurts more than overguessing, and what separates a 500 from a 900."
-date: 2026-09-05
+date: 2026-10-03
 tags: ["the game", "strategy", "scoring"]
 draft: false
 ---
