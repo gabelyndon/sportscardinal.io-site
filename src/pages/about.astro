@@ -1,0 +1,93 @@
+---
+// src/pages/about.astro
+// Renders the founder story from the blog collection so there's one source of
+// truth. Editing welcome-to-sportscardinal.md updates both this page and the post.
+import { getEntry, render } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../lib/site";
+
+const founderPost = await getEntry("blog", "welcome-to-sportscardinal");
+const { Content } = await render(founderPost);
+
+const postUrl = `/blog/${founderPost.data.slug ?? founderPost.id}/`;
+---
+
+<BaseLayout
+	title={`About — ${SITE_NAME}`}
+	description="A sports card blog, a price-guessing game, and a marketplace — run by one person in Houston, Texas."
+>
+	<section class="about">
+		<header class="about-head">
+			<h1>About SportsCardinal</h1>
+			<p class="tagline">
+				A sports card blog, a price-guessing game, and a marketplace — run by one
+				person in Houston, Texas.
+			</p>
+		</header>
+
+		<article class="about-body">
+			<Content />
+		</article>
+
+		<aside class="about-links">
+			<h2>Start here</h2>
+			<ul>
+				<li><a href="/game/">Play Guess The Price of the Card</a></li>
+				<li><a href="/blog/">Read the blog</a></li>
+				<li><a href="/blog/archive/">Browse every post by date</a></li>
+				<li><a href={postUrl}>This introduction as a blog post</a></li>
+			</ul>
+		</aside>
+	</section>
+</BaseLayout>
+
+<style>
+	.about {
+		max-width: 42rem;
+		margin: 0 auto;
+		padding: 3rem 1.25rem 5rem;
+	}
+
+	.about-head {
+		margin-bottom: 2.5rem;
+	}
+
+	.about-head h1 {
+		margin: 0 0 0.5rem;
+	}
+
+	.tagline {
+		margin: 0;
+		font-size: 1.05rem;
+		opacity: 0.7;
+	}
+
+	.about-body :global(h2) {
+		margin-top: 2.5rem;
+	}
+
+	.about-body :global(p) {
+		line-height: 1.7;
+	}
+
+	.about-links {
+		margin-top: 3.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid currentColor;
+	}
+
+	.about-links h2 {
+		margin: 0 0 0.75rem;
+		font-size: 1rem;
+	}
+
+	.about-links ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.about-links li {
+		margin-bottom: 0.4rem;
+	}
+</style>
