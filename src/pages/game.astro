@@ -164,6 +164,10 @@ import { SITE_NAME } from "../lib/site";
 				margin: 0;
 			}
 
+			#guess-form {
+				margin: 0;
+			}
+
 			.guess-row {
 				display: flex;
 				gap: 0.6rem;
@@ -369,18 +373,21 @@ import { SITE_NAME } from "../lib/site";
 					<h2 id="card-title"></h2>
 					<p class="subtitle" id="card-subtitle"></p>
 
-					<div class="guess-row">
-						<span class="prefix">$</span>
-						<input
-							type="number"
-							id="guess-input"
-							min="0"
-							step="1"
-							placeholder="Your guess"
-							inputmode="numeric"
-						/>
-					</div>
-					<button id="guess-btn">Lock In Guess</button>
+					<form id="guess-form">
+						<div class="guess-row">
+							<span class="prefix">$</span>
+							<input
+								type="number"
+								id="guess-input"
+								min="0"
+								step="1"
+								placeholder="Your guess"
+								inputmode="decimal"
+								enterkeyhint="go"
+							/>
+						</div>
+						<button type="submit" id="guess-btn">Lock In Guess</button>
+					</form>
 
 					<div class="result" id="result">
 						<div class="score-reveal" id="score-reveal">
@@ -399,7 +406,7 @@ import { SITE_NAME } from "../lib/site";
 							<span>Ratio</span>
 							<span class="val" id="result-ratio"></span>
 						</div>
-						<button id="next-btn">Next Card →</button>
+						<button type="button" id="next-btn">Next Card →</button>
 					</div>
 				</div>
 			</div>
@@ -429,6 +436,7 @@ import { SITE_NAME } from "../lib/site";
 				icon: document.getElementById("card-icon")!,
 				title: document.getElementById("card-title")!,
 				subtitle: document.getElementById("card-subtitle")!,
+				guessForm: document.getElementById("guess-form") as HTMLFormElement,
 				guessInput: document.getElementById("guess-input") as HTMLInputElement,
 				guessBtn: document.getElementById("guess-btn") as HTMLButtonElement,
 				nextBtn: document.getElementById("next-btn") as HTMLButtonElement,
@@ -502,7 +510,12 @@ import { SITE_NAME } from "../lib/site";
 			}
 
 			function submitGuess() {
-				if (!current) return;
+				// els.guessInput.disabled is set true at the end of a successful
+				// submit and only cleared by the next renderCard() — so this also
+				// guards against double-submission (Enter held down re-fires this
+				// via key repeat; Enter and a button click can both land) without
+				// needing separate state to track it.
+				if (!current || els.guessInput.disabled) return;
 				const raw = els.guessInput.value.trim();
 				if (raw === "") {
 					els.guessInput.focus();
@@ -542,11 +555,36 @@ import { SITE_NAME } from "../lib/site";
 				els.nextBtn.focus();
 			}
 
-			els.guessBtn.addEventListener("click", submitGuess);
+			// The form covers the button click and mobile's numeric-keypad
+			// "Go"/"Done" key (which submits the form natively, without ever
+			// dispatching a synthetic Enter keydown on most mobile browsers).
+			els.guessForm.addEventListener("submit", (e) => {
+				e.preventDefault(); // this isn't a real form post
+				submitGuess();
+			});
+			// Desktop Enter, handled on the input itself (not document) so
+			// Enter elsewhere on the page — e.g. focused on Next Card — never
+			// submits a guess. preventDefault stops the browser's own
+			// implicit-submit-on-Enter from *also* firing the form's submit
+			// event right after this, which would otherwise double-submit.
+			// e.repeat is true for every keydown but the first while a key is
+			// held — skip those so holding Enter can't fire submitGuess() over
+			// and over (it's also guarded inside submitGuess itself, but there's
+			// no reason to even try).
 			els.guessInput.addEventListener("keydown", (e) => {
-				if (e.key === "Enter") submitGuess();
+				if (e.key !== "Enter" || e.repeat) return;
+				e.preventDefault();
+				submitGuess();
 			});
 			els.nextBtn.addEventListener("click", nextRound);
+			// submitGuess() focuses Next Card so Enter can advance too - but
+			// that means a *held* Enter (still generating repeat keydowns after
+			// focus lands here) would otherwise auto-click Next Card over and
+			// over, skipping several cards from one key-press. Block repeats;
+			// a single fresh Enter/Space still activates the button normally.
+			els.nextBtn.addEventListener("keydown", (e) => {
+				if ((e.key === "Enter" || e.key === " ") && e.repeat) e.preventDefault();
+			});
 
 			updateStats(null, false);
 			nextRound();
