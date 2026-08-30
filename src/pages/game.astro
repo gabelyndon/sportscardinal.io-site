@@ -1,8 +1,7 @@
 ---
 // "Guess the Price of the Card" — standalone mechanics prototype.
-// Uses placeholder cards from src/data/cards.ts. Once the GoDaddy product
-// CSV is imported, swap CARDS for real inventory (id, title, price, image).
-import { CATEGORY_LABELS } from "../data/cards";
+// Uses the starter deck from src/data/cards.ts (real players/sets, estimated
+// prices). Swap CARDS for a SportsCardsPro CSV import once that's wired up.
 import { SITE_NAME } from "../lib/site";
 ---
 
@@ -314,14 +313,13 @@ import { SITE_NAME } from "../lib/site";
 		</main>
 
 		<script>
-			import { CARDS, CATEGORY_LABELS, type GameCard } from "../data/cards";
+			import type { GameCard } from "../data/cards";
+			import { drawCard } from "../lib/round";
 			import { computeScore, ratioInWords, STREAK_THRESHOLD } from "../lib/scoring";
 
 			const BEST_STREAK_KEY = "cardgame:bestStreak";
 
-			let deck: GameCard[] = [];
 			let current: GameCard | null = null;
-			let previousId: string | null = null;
 			let streak = 0;
 			let bestStreak = Number(localStorage.getItem(BEST_STREAK_KEY) ?? "0");
 
@@ -344,29 +342,6 @@ import { SITE_NAME } from "../lib/site";
 				resultScore: document.getElementById("result-score")!,
 				resultFeedback: document.getElementById("result-feedback")!,
 			};
-
-			function shuffle<T>(arr: T[]): T[] {
-				const copy = [...arr];
-				for (let i = copy.length - 1; i > 0; i--) {
-					const j = Math.floor(Math.random() * (i + 1));
-					[copy[i], copy[j]] = [copy[j], copy[i]];
-				}
-				return copy;
-			}
-
-			function refillDeck() {
-				let next = shuffle(CARDS);
-				// avoid immediately repeating the last card seen across reshuffles
-				if (previousId && next[0]?.id === previousId && next.length > 1) {
-					[next[0], next[1]] = [next[1], next[0]];
-				}
-				deck = next;
-			}
-
-			function drawCard(): GameCard {
-				if (deck.length === 0) refillDeck();
-				return deck.shift()!;
-			}
 
 			function formatUsd(n: number): string {
 				return n.toLocaleString("en-US", {
@@ -395,7 +370,7 @@ import { SITE_NAME } from "../lib/site";
 			function renderCard(card: GameCard) {
 				els.art.style.background = `linear-gradient(135deg, ${card.art.from}, ${card.art.to})`;
 				els.icon.textContent = card.art.icon;
-				els.badge.textContent = `${CATEGORY_LABELS[card.category]} · ${card.year}`;
+				els.badge.textContent = `${card.sport} · ${card.condition}`;
 				els.title.textContent = card.title;
 				els.subtitle.textContent = card.subtitle;
 				els.guessInput.value = "";
@@ -407,7 +382,6 @@ import { SITE_NAME } from "../lib/site";
 
 			function nextRound() {
 				current = drawCard();
-				previousId = current.id;
 				renderCard(current);
 			}
 

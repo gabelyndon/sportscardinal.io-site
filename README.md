@@ -11,8 +11,11 @@ Astro site for SportsCardinal.io — a card blog, store, and a "Guess the Price"
 ├── src/
 │   ├── content/blog/     Blog posts (Markdown, edited via Decap CMS once wired up)
 │   ├── content.config.ts Blog collection schema
-│   ├── data/cards.ts     Placeholder card data for the price-guessing game
+│   ├── data/cards.ts     Starter deck: 60 real cards, estimated prices —
+│   │                     see README's roadmap re: swapping in a real feed
 │   ├── lib/
+│   │   ├── round.ts      Draws each game round with a controlled price-tier
+│   │   │                 mix (ROUND_TIER_MIX) instead of pure random
 │   │   ├── scoring.ts    Guess-the-price scoring (log-space Gaussian)
 │   │   └── site.ts       Business name/tagline — single source of truth
 │   ├── layouts/          Shared page layout (blog pages)
@@ -38,9 +41,9 @@ Deployed via Cloudflare Workers (static assets), connected to this GitHub repo �
 
 ## Roadmap
 
-- [x] Guess the Price game (placeholder card data)
+- [x] Guess the Price game (60-card starter deck, real players/sets, estimated prices)
 - [x] Blog (content collections + Decap CMS scaffold)
-- [ ] Wire up GitHub OAuth Worker so Decap CMS can publish
+- [x] Wire up GitHub OAuth Worker so Decap CMS can publish
 - [ ] Store (Stripe Checkout), catalog imported from GoDaddy CSV export
-- [ ] Real card pricing data behind the game and store
+- [ ] Replace estimated prices with a real feed (SportsCardsPro CSV import) behind the game and store
 - [ ] Point the `sportscardinal.io` domain (registered at GoDaddy) at Cloudflare
