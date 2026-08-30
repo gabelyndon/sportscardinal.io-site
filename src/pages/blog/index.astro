@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { SITE_NAME } from "../../lib/site";
 
-const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const allPosts = await getCollection("blog", ({ data }) => !data.draft && data.date <= new Date());
 const posts = allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 function formatDate(d: Date): string {
