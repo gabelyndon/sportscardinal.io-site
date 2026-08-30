@@ -1,0 +1,67 @@
+# Decap CMS configuration.
+#
+# TODO(auth backend): the `backend` section below is a placeholder and
+# WILL NOT WORK until it's filled in. We're deferring this until the site
+# has a real deployed URL, because:
+#   - Netlify Identity + Git Gateway is deprecated (Netlify isn't fixing
+#     bugs in it and advises against new setups) — not using it.
+#   - The plan is a GitHub backend authenticated through a small OAuth
+#     proxy (a Cloudflare Worker), which needs a GitHub OAuth App whose
+#     callback URL points at the live site — so it can't be finished until
+#     Cloudflare Pages is deployed.
+#
+# Once the site is live, replace the `backend:` block with:
+#
+#   backend:
+#     name: github
+#     repo: <your-github-username>/card-site
+#     branch: main
+#     base_url: https://<your-oauth-worker>.workers.dev
+#
+# and deploy the OAuth Worker (with a GitHub OAuth App's client ID/secret
+# as Worker secrets) before this admin UI can authenticate.
+
+backend:
+  name: git-gateway # placeholder only — see TODO above, this is not configured
+
+# Where the CMS commits go and how the built site finds them.
+site_url: https://example.com # TODO: replace with the real deployed URL
+media_folder: "src/content/blog/images"
+public_folder: "/blog/images"
+
+collections:
+  - name: "blog"
+    label: "Blog"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    identifier_field: title
+    summary: "{{title}} — {{date}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - {
+          label: "URL Slug",
+          name: "slug",
+          widget: "string",
+          required: false,
+          hint: "Optional — overrides the filename-based URL. Leave blank to use the filename.",
+        }
+      - { label: "Excerpt", name: "excerpt", widget: "text" }
+      - {
+          label: "Tags",
+          name: "tags",
+          widget: "list",
+          default: [],
+          required: false,
+        }
+      - { label: "Draft", name: "draft", widget: "boolean", default: true }
+      - {
+          label: "Hero Image",
+          name: "heroImage",
+          widget: "image",
+          required: false,
+        }
+      - { label: "Body", name: "body", widget: "markdown" }

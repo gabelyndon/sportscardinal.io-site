@@ -1,0 +1,98 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const posts = allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+function formatDate(d: Date): string {
+	return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+---
+
+<BaseLayout title="Blog — Card Site" description="Updates, card-pricing notes, and behind-the-scenes posts.">
+	<h1>Blog</h1>
+
+	{posts.length === 0 && <p class="empty">No posts yet — check back soon.</p>}
+
+	<ul class="post-list">
+		{
+			posts.map((post) => (
+				<li>
+					<a href={`/blog/${post.data.slug ?? post.id}/`}>
+						<h2>{post.data.title}</h2>
+					</a>
+					<p class="meta">
+						<time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+						{post.data.tags.length > 0 && (
+							<span class="tags">
+								{post.data.tags.map((tag) => (
+									<span class="tag">{tag}</span>
+								))}
+							</span>
+						)}
+					</p>
+					<p class="excerpt">{post.data.excerpt}</p>
+				</li>
+			))
+		}
+	</ul>
+</BaseLayout>
+
+<style>
+	h1 {
+		margin-bottom: 1.5rem;
+	}
+	.empty {
+		color: var(--muted);
+	}
+	.post-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1.75rem;
+	}
+	.post-list li {
+		border-bottom: 1px solid var(--panel-border);
+		padding-bottom: 1.75rem;
+	}
+	.post-list li:last-child {
+		border-bottom: none;
+	}
+	.post-list a {
+		text-decoration: none;
+	}
+	.post-list h2 {
+		margin: 0 0 0.35rem;
+		font-size: 1.3rem;
+	}
+	.post-list a:hover h2 {
+		color: var(--accent);
+	}
+	.meta {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+		color: var(--muted);
+		font-size: 0.85rem;
+		margin: 0 0 0.5rem;
+	}
+	.tags {
+		display: flex;
+		gap: 0.4rem;
+	}
+	.tag {
+		background: var(--panel);
+		border: 1px solid var(--panel-border);
+		border-radius: 999px;
+		padding: 0.1rem 0.6rem;
+	}
+	.excerpt {
+		margin: 0;
+		color: #cfd2d9;
+		line-height: 1.5;
+	}
+</style>
