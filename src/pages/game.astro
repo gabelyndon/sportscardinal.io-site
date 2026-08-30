@@ -12,10 +12,10 @@ import { SITE_NAME } from "../lib/site";
 		<link rel="icon" type="image/png" href="/favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={`Guess what this card sold for, see how close you got, and chase a streak — the price-guessing game on ${SITE_NAME}.`} />
+		<meta name="description" content="SportsCardinal The Game: guess what the card sold for, see how close you got, and chase a streak." />
 		<meta property="og:site_name" content={SITE_NAME} />
-		<meta property="og:title" content={`Guess the Price — ${SITE_NAME}`} />
-		<title>Guess the Price — {SITE_NAME}</title>
+		<meta property="og:title" content="SportsCardinal The Game — Guess the Price" />
+		<title>SportsCardinal The Game — Guess the Price</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet" />
@@ -53,6 +53,15 @@ import { SITE_NAME } from "../lib/site";
 				text-transform: uppercase;
 				margin: 0.3rem 0 0.4rem;
 				text-shadow: 0 0 1.5rem color-mix(in srgb, var(--accent) 40%, transparent);
+			}
+
+			header h2 {
+				font-family: "Anton", system-ui, sans-serif;
+				font-weight: 400;
+				font-size: 1.35rem;
+				letter-spacing: 0.01em;
+				color: var(--text);
+				margin: 0 0 0.5rem;
 			}
 
 			header p {
@@ -345,7 +354,8 @@ import { SITE_NAME } from "../lib/site";
 		<main>
 			<header>
 				<a class="back" href="/">← {SITE_NAME}</a>
-				<h1>🎯 Guess the Price</h1>
+				<h1>SportsCardinal The Game</h1>
+				<h2>🎯 Guess The Price</h2>
 				<p>See the card. Guess what it's worth. Chase the streak.</p>
 			</header>
 

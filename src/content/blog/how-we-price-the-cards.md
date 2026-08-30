@@ -6,7 +6,7 @@ tags: ["cards", "pricing"]
 draft: false
 ---
 
-If you've played [Guess the Price](/game), you've seen the term **"the comp"** on the reveal screen. It's short for *comparable sale* — the price a card actually sold for recently, which is what we use as the "actual" price instead of an asking price or a guess at value.
+If you've played [SportsCardinal The Game](/game), you've seen the term **"the comp"** on the reveal screen. It's short for *comparable sale* — the price a card actually sold for recently, which is what we use as the "actual" price instead of an asking price or a guess at value.
 
 A few things worth knowing about how that number works:
 

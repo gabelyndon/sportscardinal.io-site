@@ -13,7 +13,7 @@ After years on GoDaddy Website Builder, this site now lives on its own — built
 ## What's here already
 
 - **This blog**, published straight from a browser-based editor — no local setup required to post an update.
-- **[Guess the Price](/game)**, a quick game where you look at a card, guess what it's worth, and see how close you got.
+- **[SportsCardinal The Game](/game)**, a quick game where you look at a card, guess what it's worth, and see how close you got.
 
 ## What's coming
 
