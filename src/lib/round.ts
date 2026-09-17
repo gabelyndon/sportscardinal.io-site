@@ -12,9 +12,9 @@ export const ROUND_SIZE = 10;
  * many distinct players in each tier or drawFromTier's dedup will start
  * forcing repeats. */
 export const ROUND_TIER_MIX: Record<PriceTier, number> = {
-  common: 5,
-  mid: 3,
-  high: 1,
+  common: 3,
+  mid: 4,
+  high: 2,
   grail: 1,
 };
 

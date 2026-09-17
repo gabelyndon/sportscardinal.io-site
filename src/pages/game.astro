@@ -1,7 +1,8 @@
 ---
 // "Guess the Price of the Card" — standalone mechanics prototype.
-// Uses the starter deck from src/data/cards.ts (real players/sets, estimated
-// prices). Swap CARDS for a SportsCardsPro CSV import once that's wired up.
+// Uses the photographed inventory deck from src/data/cards.ts (real cards,
+// estimated prices). Swap prices for a SportsCardsPro CSV import once that's
+// wired up.
 import "../styles/tokens.css";
 import { SITE_NAME } from "../lib/site";
 ---
@@ -124,13 +125,28 @@ import { SITE_NAME } from "../lib/site";
 			}
 
 			.card-art {
-				height: 260px;
+				height: 380px;
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				font-size: 5rem;
 				position: relative;
 				overflow: hidden;
+				/* Matches the dark backdrop the card photos were shot on, so the
+				   letterboxing around landscape/portrait photos is invisible. */
+				background: #242526;
+			}
+
+			.card-art img {
+				width: 100%;
+				height: 100%;
+				object-fit: contain;
+				display: block;
+			}
+
+			@media (max-width: 420px) {
+				.card-art {
+					height: 330px;
+				}
 			}
 
 			.card-art::after {
@@ -376,8 +392,8 @@ import { SITE_NAME } from "../lib/site";
 
 			<div class="card-panel">
 				<div class="card-art" id="card-art">
+					<img id="card-img" alt="" width="700" height="933" decoding="async" />
 					<span class="badge" id="card-badge"></span>
-					<span id="card-icon"></span>
 				</div>
 				<div class="card-body">
 					<h2 id="card-title"></h2>
@@ -443,7 +459,7 @@ import { SITE_NAME } from "../lib/site";
 				best: document.getElementById("stat-best")!,
 				art: document.getElementById("card-art")!,
 				badge: document.getElementById("card-badge")!,
-				icon: document.getElementById("card-icon")!,
+				img: document.getElementById("card-img") as HTMLImageElement,
 				title: document.getElementById("card-title")!,
 				subtitle: document.getElementById("card-subtitle")!,
 				guessForm: document.getElementById("guess-form") as HTMLFormElement,
@@ -493,8 +509,8 @@ import { SITE_NAME } from "../lib/site";
 			}
 
 			function renderCard(card: GameCard) {
-				els.art.style.background = `linear-gradient(135deg, ${card.art.from}, ${card.art.to})`;
-				els.icon.textContent = card.art.icon;
+				els.img.src = card.image;
+				els.img.alt = `${card.title} — ${card.subtitle}, ${card.condition}`;
 				els.badge.textContent = `${card.sport} · ${card.condition}`;
 				els.title.textContent = card.title;
 				els.subtitle.textContent = card.subtitle;

@@ -1,14 +1,36 @@
 // Card data for the "Guess the Price" game.
 //
-// Real players, real sets, plausible-but-estimated recent market prices —
-// see the note on each grail-tier card below for where the estimate had to
-// be squeezed to fit priceTier's $500k ceiling. This is a hand-picked
-// starting deck; swap CARDS for a SportsCardsPro CSV import once that's
-// wired up (see src/pages/game.astro and README.md).
+// The deck is SportsCardinal's own inventory, photographed: src/data/cards.json
+// has one row per photo in public/cards/webp/. Rows with inPool: false stay in
+// the JSON (duplicate shots of the same card, a card back, non-sports cards)
+// but never reach the game. Prices are estimates for now (priceSource:
+// "estimate") — swap them for real comps once the SportsCardsPro import is
+// wired up (see README.md).
+
+import rows from "./cards.json";
 
 export type Era = "vintage" | "modern" | "ultra-modern";
 export type PriceTier = "common" | "mid" | "high" | "grail";
 export type Sport = "Baseball" | "Basketball" | "Football" | "Hockey" | "Golf" | "Soccer";
+
+/** One row of cards.json, as written by hand / the photo import. */
+interface CardRow {
+  id: string;
+  image: string;
+  player: string;
+  year: number;
+  set: string;
+  variant: string;
+  /** "PSA 10", "BGS 9.5", … or "" for a raw card. */
+  grade: string;
+  sport: string;
+  price: number;
+  priceAsOf: string;
+  priceSource: string;
+  inPool: boolean;
+  /** Anything about the identification that still needs a human check. */
+  notes?: string;
+}
 
 export interface GameCard {
   id: string;
@@ -16,22 +38,18 @@ export interface GameCard {
   sport: Sport;
   /** Player name. */
   title: string;
-  /** Year, set, and any parallel/notes — e.g. "1986-87 Fleer (RC)". */
+  /** Year, set, and any parallel/notes — e.g. "2023 Prizm Draft Picks #115 (RC) · Gold Ice". */
   subtitle: string;
   year: number;
-  /** "Raw", "Raw (VG)", or a grading company + grade, e.g. "PSA 10". */
+  /** "Raw" or a grading company + grade, e.g. "PSA 10". */
   condition: string;
-  /** Actual market price in USD — this is what the player is guessing. */
+  /** Market price in USD — this is what the player is guessing. */
   price: number;
   priceTier: PriceTier;
   /** ISO date the price was captured — it's a snapshot, not a live quote. */
   priceAsOf: string;
-  /** Placeholder "art": a gradient + icon, standing in for a real card photo. */
-  art: {
-    from: string;
-    to: string;
-    icon: string;
-  };
+  /** Photo of the actual card, served from public/. */
+  image: string;
 }
 
 export const ERA_LABELS: Record<Era, string> = {
@@ -40,736 +58,36 @@ export const ERA_LABELS: Record<Era, string> = {
   "ultra-modern": "Ultra-Modern",
 };
 
-const ICONS: Record<Sport, string> = {
-  Baseball: "⚾",
-  Basketball: "🏀",
-  Football: "🏈",
-  Hockey: "🏒",
-  Golf: "⛳",
-  Soccer: "⚽",
-};
+const SPORTS = new Set<string>(["Baseball", "Basketball", "Football", "Hockey", "Golf", "Soccer"]);
 
-// Cycled by index across the deck purely for visual variety — no meaning
-// attached to which card gets which pair.
-const PALETTE: { from: string; to: string }[] = [
-  { from: "#1e3a8a", to: "#3b82f6" },
-  { from: "#7c2d12", to: "#f97316" },
-  { from: "#14532d", to: "#22c55e" },
-  { from: "#0c4a6e", to: "#38bdf8" },
-  { from: "#713f12", to: "#eab308" },
-  { from: "#581c87", to: "#a855f7" },
-  { from: "#831843", to: "#ec4899" },
-  { from: "#052e16", to: "#4ade80" },
-  { from: "#1e1b4b", to: "#818cf8" },
-  { from: "#78350f", to: "#fbbf24" },
-  { from: "#164e63", to: "#22d3ee" },
-  { from: "#3f3f46", to: "#a1a1aa" },
-  { from: "#312e81", to: "#818cf8" },
-  { from: "#365314", to: "#84cc16" },
-  { from: "#450a0a", to: "#ef4444" },
-];
-
-/** Builds the `art` field so each row below only has to state its sport. */
-function art(sport: Sport, i: number) {
-  return { ...PALETTE[i % PALETTE.length], icon: ICONS[sport] };
+function eraFor(year: number): Era {
+  if (year < 1980) return "vintage";
+  if (year < 2010) return "modern";
+  return "ultra-modern";
 }
 
-// Row shape without `art`/`id` — both are derived below so the table stays
-// terse and there's one less place for the two to drift out of sync.
-type CardInput = Omit<GameCard, "id" | "art">;
+/** Tier cutoffs are tuned to this inventory's price spread, not the hobby's
+ * at large — round.ts draws a fixed mix per tier, so each tier needs enough
+ * distinct players to fill it. */
+export function priceTierFor(price: number): PriceTier {
+  if (price >= 300) return "grail";
+  if (price >= 80) return "high";
+  if (price >= 25) return "mid";
+  return "common";
+}
 
-function era(prefix: string, rows: CardInput[]): GameCard[] {
-  return rows.map((row, i) => ({
-    ...row,
-    id: `${prefix}-${String(i + 1).padStart(2, "0")}`,
-    art: art(row.sport, i),
+export const CARDS: GameCard[] = (rows as CardRow[])
+  .filter((row) => row.inPool && SPORTS.has(row.sport) && row.price > 0)
+  .map((row) => ({
+    id: row.id,
+    era: eraFor(row.year),
+    sport: row.sport as Sport,
+    title: row.player,
+    subtitle: [`${row.year} ${row.set}`, row.variant].filter(Boolean).join(" · "),
+    year: row.year,
+    condition: row.grade || "Raw",
+    price: row.price,
+    priceTier: priceTierFor(row.price),
+    priceAsOf: row.priceAsOf,
+    image: row.image,
   }));
-}
-
-const VINTAGE: GameCard[] = era("vtg", [
-  // --- grail: real comps for these run well past $500k even at low grades
-  // (a raw T206 Wagner alone has sold for $1.2M+); priced at the high end
-  // of our range rather than to true market, with Wagner as the deck's
-  // intentional ceiling.
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Honus Wagner",
-    subtitle: "1909-11 T206",
-    year: 1910,
-    condition: "Raw (Poor/Fair)",
-    price: 495000,
-    priceTier: "grail",
-    priceAsOf: "2026-06-02",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Mickey Mantle",
-    subtitle: "1952 Topps",
-    year: 1952,
-    condition: "PSA 2",
-    price: 220000,
-    priceTier: "grail",
-    priceAsOf: "2026-04-18",
-  },
-  // --- high
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Babe Ruth",
-    subtitle: "1933 Goudey",
-    year: 1933,
-    condition: "PSA 5",
-    price: 60000,
-    priceTier: "high",
-    priceAsOf: "2026-03-11",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Jackie Robinson",
-    subtitle: "1948 Leaf (RC)",
-    year: 1948,
-    condition: "PSA 6",
-    price: 65000,
-    priceTier: "high",
-    priceAsOf: "2026-05-27",
-  },
-  // --- mid
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Mickey Mantle",
-    subtitle: "1957 Topps",
-    year: 1957,
-    condition: "PSA 5",
-    price: 3500,
-    priceTier: "mid",
-    priceAsOf: "2026-07-09",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Bob Gibson",
-    subtitle: "1959 Topps (RC)",
-    year: 1959,
-    condition: "PSA 7",
-    price: 1800,
-    priceTier: "mid",
-    priceAsOf: "2026-02-14",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Willie Mays",
-    subtitle: "1965 Topps",
-    year: 1965,
-    condition: "PSA 6",
-    price: 900,
-    priceTier: "mid",
-    priceAsOf: "2026-08-01",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Reggie Jackson",
-    subtitle: "1969 Topps (RC)",
-    year: 1969,
-    condition: "PSA 5",
-    price: 1200,
-    priceTier: "mid",
-    priceAsOf: "2025-12-20",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Roberto Clemente",
-    subtitle: "1971 Topps",
-    year: 1971,
-    condition: "PSA 6",
-    price: 1500,
-    priceTier: "mid",
-    priceAsOf: "2026-06-30",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "George Brett",
-    subtitle: "1975 Topps (RC)",
-    year: 1975,
-    condition: "PSA 8",
-    price: 2800,
-    priceTier: "mid",
-    priceAsOf: "2026-01-22",
-  },
-  // --- common
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Hank Aaron",
-    subtitle: "1962 Topps",
-    year: 1962,
-    condition: "Raw (VG)",
-    price: 180,
-    priceTier: "common",
-    priceAsOf: "2026-07-17",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Pete Rose",
-    subtitle: "1963 Topps (RC)",
-    year: 1963,
-    condition: "Raw (Fair)",
-    price: 350,
-    priceTier: "common",
-    priceAsOf: "2026-03-05",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Nolan Ryan",
-    subtitle: "1968 Topps (RC)",
-    year: 1968,
-    condition: "Raw (Good)",
-    price: 450,
-    priceTier: "common",
-    priceAsOf: "2026-05-09",
-  },
-  {
-    era: "vintage",
-    sport: "Basketball",
-    title: "Wilt Chamberlain",
-    subtitle: "1961 Fleer (RC)",
-    year: 1961,
-    condition: "Raw (Good)",
-    price: 220,
-    priceTier: "common",
-    priceAsOf: "2026-04-02",
-  },
-  {
-    era: "vintage",
-    sport: "Football",
-    title: "Jim Brown",
-    subtitle: "1957 Topps (RC)",
-    year: 1957,
-    condition: "Raw (Fair)",
-    price: 150,
-    priceTier: "common",
-    priceAsOf: "2026-08-11",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Mike Schmidt",
-    subtitle: "1973 Topps (RC)",
-    year: 1973,
-    condition: "Raw (Good)",
-    price: 200,
-    priceTier: "common",
-    priceAsOf: "2026-02-27",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "George Brett",
-    subtitle: "1976 Topps",
-    year: 1976,
-    condition: "PSA 5",
-    price: 85,
-    priceTier: "common",
-    priceAsOf: "2026-06-14",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Dave Winfield",
-    subtitle: "1974 Topps (RC)",
-    year: 1974,
-    condition: "Raw (Good)",
-    price: 60,
-    priceTier: "common",
-    priceAsOf: "2025-11-30",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Eddie Murray",
-    subtitle: "1978 Topps (RC)",
-    year: 1978,
-    condition: "PSA 6",
-    price: 130,
-    priceTier: "common",
-    priceAsOf: "2026-07-25",
-  },
-  {
-    era: "vintage",
-    sport: "Baseball",
-    title: "Hank Aaron",
-    subtitle: '1974 Topps "Aaron Hits 715th"',
-    year: 1974,
-    condition: "Raw (VG)",
-    price: 95,
-    priceTier: "common",
-    priceAsOf: "2026-01-08",
-  },
-]);
-
-const MODERN: GameCard[] = era("mod", [
-  // --- grail: same squeeze as the vintage grails — a PSA 9+ of either of
-  // these has sold for seven figures; graded down to fit the range.
-  {
-    era: "modern",
-    sport: "Basketball",
-    title: "Michael Jordan",
-    subtitle: "1986-87 Fleer (RC)",
-    year: 1986,
-    condition: "PSA 10",
-    price: 260000,
-    priceTier: "grail",
-    priceAsOf: "2026-05-16",
-  },
-  {
-    era: "modern",
-    sport: "Football",
-    title: "Tom Brady",
-    subtitle: "2000 Playoff Contenders Rookie Ticket Auto",
-    year: 2000,
-    condition: "PSA 7",
-    price: 310000,
-    priceTier: "grail",
-    priceAsOf: "2026-03-24",
-  },
-  // --- high
-  {
-    era: "modern",
-    sport: "Golf",
-    title: "Tiger Woods",
-    subtitle: "2001 Upper Deck (RC)",
-    year: 2001,
-    condition: "PSA 10",
-    price: 55000,
-    priceTier: "high",
-    priceAsOf: "2026-06-19",
-  },
-  {
-    era: "modern",
-    sport: "Basketball",
-    title: "Kobe Bryant",
-    subtitle: "1996-97 Topps Chrome Refractor (RC)",
-    year: 1996,
-    condition: "PSA 10",
-    price: 48000,
-    priceTier: "high",
-    priceAsOf: "2026-02-08",
-  },
-  // --- mid
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Ken Griffey Jr.",
-    subtitle: "1989 Upper Deck (RC)",
-    year: 1989,
-    condition: "PSA 10",
-    price: 2200,
-    priceTier: "mid",
-    priceAsOf: "2026-07-21",
-  },
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Derek Jeter",
-    subtitle: "1993 SP Foil (RC)",
-    year: 1993,
-    condition: "PSA 9",
-    price: 3500,
-    priceTier: "mid",
-    priceAsOf: "2026-04-30",
-  },
-  {
-    era: "modern",
-    sport: "Basketball",
-    title: "Kobe Bryant",
-    subtitle: "1996-97 Topps Chrome (RC)",
-    year: 1996,
-    condition: "PSA 9",
-    price: 4200,
-    priceTier: "mid",
-    priceAsOf: "2026-01-15",
-  },
-  {
-    era: "modern",
-    sport: "Football",
-    title: "Peyton Manning",
-    subtitle: "1998 Topps Chrome (RC)",
-    year: 1998,
-    condition: "PSA 9",
-    price: 1600,
-    priceTier: "mid",
-    priceAsOf: "2026-08-04",
-  },
-  {
-    era: "modern",
-    sport: "Football",
-    title: "Tom Brady",
-    subtitle: "2000 Bowman Chrome (RC)",
-    year: 2000,
-    condition: "PSA 9",
-    price: 6500,
-    priceTier: "mid",
-    priceAsOf: "2026-05-02",
-  },
-  {
-    era: "modern",
-    sport: "Football",
-    title: "Aaron Rodgers",
-    subtitle: "2005 Bowman Chrome (RC)",
-    year: 2005,
-    condition: "PSA 9",
-    price: 900,
-    priceTier: "mid",
-    priceAsOf: "2025-10-19",
-  },
-  // --- common
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Don Mattingly",
-    subtitle: "1984 Donruss (RC)",
-    year: 1984,
-    condition: "Raw (NM)",
-    price: 45,
-    priceTier: "common",
-    priceAsOf: "2026-03-30",
-  },
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Barry Bonds",
-    subtitle: "1987 Topps (RC)",
-    year: 1987,
-    condition: "Raw (NM)",
-    price: 60,
-    priceTier: "common",
-    priceAsOf: "2026-06-27",
-  },
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Frank Thomas",
-    subtitle: '1990 Score "No Name on Front" error',
-    year: 1990,
-    condition: "PSA 8",
-    price: 50,
-    priceTier: "common",
-    priceAsOf: "2026-02-19",
-  },
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Jeff Bagwell",
-    subtitle: "1991 Topps Stadium Club (RC)",
-    year: 1991,
-    condition: "Raw (NM-MT)",
-    price: 40,
-    priceTier: "common",
-    priceAsOf: "2026-07-06",
-  },
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Mariano Rivera",
-    subtitle: "1992 Bowman (RC)",
-    year: 1992,
-    condition: "Raw (NM)",
-    price: 150,
-    priceTier: "common",
-    priceAsOf: "2026-04-12",
-  },
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Alex Rodriguez",
-    subtitle: "1994 SP (RC)",
-    year: 1994,
-    condition: "Raw (NM)",
-    price: 200,
-    priceTier: "common",
-    priceAsOf: "2025-12-05",
-  },
-  {
-    era: "modern",
-    sport: "Basketball",
-    title: "Allen Iverson",
-    subtitle: "1996-97 Upper Deck Rookie Exclusives",
-    year: 1996,
-    condition: "Raw (NM)",
-    price: 120,
-    priceTier: "common",
-    priceAsOf: "2026-08-16",
-  },
-  {
-    era: "modern",
-    sport: "Basketball",
-    title: "Tim Duncan",
-    subtitle: "1997-98 Topps Chrome (RC)",
-    year: 1997,
-    condition: "PSA 8",
-    price: 180,
-    priceTier: "common",
-    priceAsOf: "2026-01-29",
-  },
-  {
-    era: "modern",
-    sport: "Football",
-    title: "Randy Moss",
-    subtitle: "1998 Skybox Dominion (RC)",
-    year: 1998,
-    condition: "Raw (NM)",
-    price: 75,
-    priceTier: "common",
-    priceAsOf: "2026-05-23",
-  },
-  {
-    era: "modern",
-    sport: "Baseball",
-    title: "Ichiro Suzuki",
-    subtitle: "2001 Upper Deck (RC)",
-    year: 2001,
-    condition: "Raw (NM)",
-    price: 50,
-    priceTier: "common",
-    priceAsOf: "2026-03-17",
-  },
-]);
-
-const ULTRA_MODERN: GameCard[] = era("um", [
-  // --- grail: serial-numbered patch autos are a thin, volatile market —
-  // these two are rougher estimates than the rest of the deck.
-  {
-    era: "ultra-modern",
-    sport: "Football",
-    title: "Patrick Mahomes",
-    subtitle: "2017 Panini National Treasures Rookie Patch Auto /99",
-    year: 2017,
-    condition: "PSA 10",
-    price: 165000,
-    priceTier: "grail",
-    priceAsOf: "2026-06-08",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Basketball",
-    title: "Trae Young",
-    subtitle: "2018-19 Panini National Treasures Logoman Rookie Patch Auto 1/1",
-    year: 2018,
-    condition: "Raw",
-    price: 175000,
-    priceTier: "grail",
-    priceAsOf: "2026-04-25",
-  },
-  // --- high
-  {
-    era: "ultra-modern",
-    sport: "Basketball",
-    title: "Luka Dončić",
-    subtitle: "2018-19 Panini National Treasures Rookie Patch Auto /99",
-    year: 2018,
-    condition: "PSA 10",
-    price: 55000,
-    priceTier: "high",
-    priceAsOf: "2026-02-01",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Basketball",
-    title: "Zion Williamson",
-    subtitle: "2019-20 Panini National Treasures Rookie Patch Auto /99",
-    year: 2019,
-    condition: "PSA 10",
-    price: 28000,
-    priceTier: "high",
-    priceAsOf: "2026-07-13",
-  },
-  // --- mid
-  {
-    era: "ultra-modern",
-    sport: "Basketball",
-    title: "Luka Dončić",
-    subtitle: "2018-19 Panini Prizm Silver (RC)",
-    year: 2018,
-    condition: "PSA 10",
-    price: 6500,
-    priceTier: "mid",
-    priceAsOf: "2026-05-06",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Basketball",
-    title: "Ja Morant",
-    subtitle: "2019-20 Panini Prizm Silver (RC)",
-    year: 2019,
-    condition: "PSA 10",
-    price: 1800,
-    priceTier: "mid",
-    priceAsOf: "2026-01-11",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Football",
-    title: "Joe Burrow",
-    subtitle: "2020 Panini Prizm (RC)",
-    year: 2020,
-    condition: "PSA 10",
-    price: 2500,
-    priceTier: "mid",
-    priceAsOf: "2026-08-22",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Baseball",
-    title: "Yordan Alvarez",
-    subtitle: "2019 Bowman Chrome Auto (RC)",
-    year: 2019,
-    condition: "PSA 10",
-    price: 750,
-    priceTier: "mid",
-    priceAsOf: "2025-11-14",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Football",
-    title: "Justin Herbert",
-    subtitle: "2020 Panini Prizm (RC)",
-    year: 2020,
-    condition: "PSA 10",
-    price: 1200,
-    priceTier: "mid",
-    priceAsOf: "2026-03-28",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Basketball",
-    title: "Trae Young",
-    subtitle: "2018-19 Panini Prizm (RC)",
-    year: 2018,
-    condition: "PSA 9",
-    price: 700,
-    priceTier: "mid",
-    priceAsOf: "2026-06-24",
-  },
-  // --- common
-  {
-    era: "ultra-modern",
-    sport: "Baseball",
-    title: "Ronald Acuña Jr.",
-    subtitle: "2018 Topps Chrome Update (RC)",
-    year: 2018,
-    condition: "Raw (NM-MT)",
-    price: 45,
-    priceTier: "common",
-    priceAsOf: "2026-07-30",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Football",
-    title: "Trevor Lawrence",
-    subtitle: "2021 Panini Prizm (RC)",
-    year: 2021,
-    condition: "Raw (NM-MT)",
-    price: 60,
-    priceTier: "common",
-    priceAsOf: "2026-02-23",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Football",
-    title: "Kyler Murray",
-    subtitle: "2019 Panini Donruss Optic (RC)",
-    year: 2019,
-    condition: "Raw (NM-MT)",
-    price: 35,
-    priceTier: "common",
-    priceAsOf: "2026-04-07",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Football",
-    title: "Tua Tagovailoa",
-    subtitle: "2020 Panini Prizm (RC)",
-    year: 2020,
-    condition: "Raw (NM-MT)",
-    price: 40,
-    priceTier: "common",
-    priceAsOf: "2025-12-31",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Baseball",
-    title: "Julio Rodríguez",
-    subtitle: "2022 Topps Chrome Update (RC)",
-    year: 2022,
-    condition: "PSA 9",
-    price: 80,
-    priceTier: "common",
-    priceAsOf: "2026-05-19",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Hockey",
-    title: "Connor McDavid",
-    subtitle: "2015-16 Upper Deck Young Guns (RC)",
-    year: 2015,
-    condition: "Raw (NM-MT)",
-    price: 120,
-    priceTier: "common",
-    priceAsOf: "2026-01-04",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Hockey",
-    title: "Kirill Kaprizov",
-    subtitle: "2020-21 Upper Deck Young Guns (RC)",
-    year: 2020,
-    condition: "Raw (NM-MT)",
-    price: 65,
-    priceTier: "common",
-    priceAsOf: "2026-08-27",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Basketball",
-    title: "Victor Wembanyama",
-    subtitle: "2023 Panini Prizm (RC)",
-    year: 2023,
-    condition: "Raw (NM-MT)",
-    price: 150,
-    priceTier: "common",
-    priceAsOf: "2026-06-10",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Baseball",
-    title: "Shohei Ohtani",
-    subtitle: "2018 Topps Chrome (RC)",
-    year: 2018,
-    condition: "Raw (NM-MT)",
-    price: 180,
-    priceTier: "common",
-    priceAsOf: "2026-03-14",
-  },
-  {
-    era: "ultra-modern",
-    sport: "Soccer",
-    title: "Kylian Mbappé",
-    subtitle: "2018 Panini Prizm World Cup (RC)",
-    year: 2018,
-    condition: "Raw (NM-MT)",
-    price: 85,
-    priceTier: "common",
-    priceAsOf: "2026-07-02",
-  },
-]);
-
-export const CARDS: GameCard[] = [...VINTAGE, ...MODERN, ...ULTRA_MODERN];
