@@ -28,11 +28,15 @@
 	--ink-700: #241c44;
 	--ink-600: #372a5e;
 
-	/* the one accent: cardinal red, sampled from its brightest feathers.
-	   -hover is a lightened tint for hover/focus; -deep is a sampled
+	/* the one accent: cardinal red. --brand-red is the median of the
+	   logo's bright, saturated red feather pixels
+	   (public/images/cardinal-logo-mark.png), so buttons and glows match
+	   the mark exactly — change it only by re-sampling the logo.
+	   -hover is a lightened tint of it for hover/focus; -deep is a sampled
 	   shadow-red for pressed states and gradient stops. */
-	--accent: #ec1528;
-	--accent-hover: #ff3b48;
+	--brand-red: #ea0723;
+	--accent: var(--brand-red);
+	--accent-hover: color-mix(in srgb, var(--brand-red) 82%, white);
 	--accent-deep: #620415;
 	--on-accent: #fff7f5;
 
@@ -41,6 +45,12 @@
 	   background. Score-reveal only; see the file header. */
 	--foil-purple: #9a4fc2;
 	--foil-blue: #3a56c9;
+
+	/* two type families, no more: a condensed display face for H1s and
+	   headings, and one sans for everything else (body, subheads, buttons,
+	   links). Pages that use --font-display must load Anton. */
+	--font-display: "Anton", "Arial Narrow", sans-serif;
+	--font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
 
 	--text: #f5f3fa;
 	--muted: #a79fc0;

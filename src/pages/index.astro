@@ -1,6 +1,9 @@
 ---
 import "../styles/tokens.css";
-import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
+import { SITE_NAME } from "../lib/site";
+
+const DESCRIPTION =
+	"Guess what real sports cards are worth. A price-guessing game, a blog, and a low-fee marketplace for collectors.";
 ---
 
 <html lang="en">
@@ -9,10 +12,10 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 		<link rel="icon" type="image/png" href="/favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={SITE_TAGLINE} />
+		<meta name="description" content={DESCRIPTION} />
 		<meta property="og:site_name" content={SITE_NAME} />
 		<meta property="og:title" content={SITE_NAME} />
-		<meta property="og:description" content={SITE_TAGLINE} />
+		<meta property="og:description" content={DESCRIPTION} />
 		<title>{SITE_NAME}</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,12 +30,14 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 				min-height: 100vh;
 				background: var(--ink-950);
 				color: var(--text);
-				font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+				font-family: var(--font-body);
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				text-align: center;
-				padding: 2rem;
+				/* Extra top padding pulls the block's optical center down a
+				   little, so it doesn't float high over a dead zone below. */
+				padding: clamp(2rem, 10vh, 7rem) 2rem 2rem;
 				overflow-x: hidden;
 			}
 
@@ -44,53 +49,60 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 			.glow {
 				position: absolute;
 				inset: -4rem -6rem auto;
-				height: 22rem;
-				background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 35%, transparent), transparent 70%);
+				height: 24rem;
+				background: radial-gradient(closest-side, color-mix(in srgb, var(--brand-red) 35%, transparent), transparent 70%);
 				filter: blur(10px);
 				z-index: -1;
 				animation: pulse 4s ease-in-out infinite;
 			}
 
 			.logo {
-				height: 7rem;
+				height: clamp(7rem, 14vh, 9rem);
 				width: auto;
-				filter: drop-shadow(0 0 1.5rem color-mix(in srgb, var(--accent) 55%, transparent));
+				display: block;
+				margin: 0 auto;
+				filter: drop-shadow(0 0 1.5rem color-mix(in srgb, var(--brand-red) 55%, transparent));
 			}
 
 			h1 {
-				font-family: "Anton", system-ui, sans-serif;
+				font-family: var(--font-display);
 				font-weight: 400;
-				font-size: clamp(2.5rem, 8vw, 4rem);
+				font-size: clamp(2.75rem, 8vw, 5.25rem);
+				line-height: 1.05;
 				letter-spacing: 0.01em;
 				text-transform: uppercase;
-				margin: 1rem 0 0.6rem;
-				text-shadow: 0 0 2rem color-mix(in srgb, var(--accent) 45%, transparent);
+				margin: 1.1rem 0 0.8rem;
+				text-shadow: 0 0 2rem color-mix(in srgb, var(--brand-red) 45%, transparent);
 			}
 
 			p.tagline {
 				color: var(--muted);
-				font-size: 1.05rem;
-				max-width: 32rem;
+				font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+				line-height: 1.5;
+				max-width: 34rem;
 				margin: 0 auto;
 			}
 
 			a.cta {
 				display: inline-block;
-				margin-top: 1.75rem;
-				background: var(--accent);
+				margin-top: 2rem;
+				background: var(--brand-red);
 				color: var(--on-accent);
+				font-family: var(--font-body);
 				font-weight: 700;
-				font-size: 1.05rem;
+				/* 1.2rem bold counts as large text, so white on the brand red
+				   clears the 3:1 contrast bar with room to spare. */
+				font-size: 1.2rem;
 				text-decoration: none;
-				padding: 0.9rem 1.9rem;
+				padding: 0.95rem 2.2rem;
 				border-radius: 999px;
-				box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+				box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--brand-red) 70%, transparent);
 				transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 			}
 			a.cta:hover {
 				background: var(--accent-hover);
 				transform: translateY(-2px) scale(1.03);
-				box-shadow: 0 14px 36px -6px color-mix(in srgb, var(--accent) 80%, transparent);
+				box-shadow: 0 14px 36px -6px color-mix(in srgb, var(--brand-red) 80%, transparent);
 			}
 			a.cta:active {
 				transform: translateY(0) scale(0.99);
@@ -104,8 +116,9 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 			}
 			.links a {
 				color: var(--muted);
+				font-family: var(--font-body);
 				text-decoration: none;
-				font-size: 0.9rem;
+				font-size: 0.95rem;
 				transition: color 0.15s ease;
 			}
 			.links a:hover {
@@ -146,10 +159,10 @@ import { SITE_NAME, SITE_TAGLINE } from "../lib/site";
 	<body>
 		<div class="hero">
 			<div class="glow"></div>
-			<img class="logo" src="/images/logo-header.png" alt="" width="139" height="200" />
-			<h1>{SITE_NAME}</h1>
-			<p class="tagline">Under construction — blog, store, and the price-guessing game are coming together here.</p>
-			<a class="cta" href="/game">SportsCardinal The Game</a>
+			<img class="logo" src="/images/logo-header.png" alt="" width="162" height="224" />
+			<h1>SportsCardinal</h1>
+			<p class="tagline">The price-guessing game is live. Blog and store are coming together here.</p>
+			<a class="cta" href="/game">Play the game</a>
 			<div class="links">
 				<a href="/blog">Read the blog</a>
 			</div>
