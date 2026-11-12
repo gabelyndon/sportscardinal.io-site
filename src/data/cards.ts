@@ -1,11 +1,10 @@
 // Card data for the "Guess the Price" game.
 //
-// The deck is SportsCardinal's own inventory, photographed: src/data/cards.json
-// has one row per photo in public/cards/webp/. Rows with inPool: false stay in
-// the JSON (duplicate shots of the same card, a card back, non-sports cards)
-// but never reach the game. Prices are estimates for now (priceSource:
-// "estimate") — swap them for real comps once the SportsCardsPro import is
-// wired up (see README.md).
+// cards.json is the single source of card data: one row per photographed card
+// (700x933 WebP in public/cards/webp/, JPEG fallback in public/cards/jpg/).
+// Rows with inPool: false have no image committed (duplicate shots, a card
+// back, non-sports cards) and never reach the game. Prices are approximate
+// demo values (priceSource: "demo estimate"), not market data.
 
 import rows from "./cards.json";
 
@@ -16,7 +15,8 @@ export type Sport = "Baseball" | "Basketball" | "Football" | "Hockey" | "Golf" |
 /** One row of cards.json, as written by hand / the photo import. */
 interface CardRow {
   id: string;
-  image: string;
+  image: string | null;
+  imageFallback: string | null;
   player: string;
   year: number;
   set: string;
@@ -50,6 +50,8 @@ export interface GameCard {
   priceAsOf: string;
   /** Photo of the actual card, served from public/. */
   image: string;
+  /** JPEG fallback for browsers without WebP. */
+  imageFallback: string;
 }
 
 export const ERA_LABELS: Record<Era, string> = {
@@ -77,7 +79,7 @@ export function priceTierFor(price: number): PriceTier {
 }
 
 export const CARDS: GameCard[] = (rows as CardRow[])
-  .filter((row) => row.inPool && SPORTS.has(row.sport) && row.price > 0)
+  .filter((row) => row.inPool && row.image && row.imageFallback && SPORTS.has(row.sport) && row.price > 0)
   .map((row) => ({
     id: row.id,
     era: eraFor(row.year),
@@ -89,5 +91,6 @@ export const CARDS: GameCard[] = (rows as CardRow[])
     price: row.price,
     priceTier: priceTierFor(row.price),
     priceAsOf: row.priceAsOf,
-    image: row.image,
+    image: row.image as string,
+    imageFallback: row.imageFallback as string,
   }));

@@ -30,3 +30,16 @@ Thumbs.db
 .idea/
 
 card-staging/
+
+# --- showcase: keep raw/third-party/secret material out of the repo ---
+card-staging/
+raw/
+raw-photos/
+processed/
+*.csv
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+!oauth-worker/.dev.vars.example
