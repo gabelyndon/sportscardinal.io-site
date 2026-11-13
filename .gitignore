@@ -43,3 +43,9 @@ processed/
 .dev.vars.*
 !.dev.vars.example
 !oauth-worker/.dev.vars.example
+
+# keep the documented template tracked
+!.env.example
+
+# eval ground truth derived from cards.json (no local paths)
+!agents/card-scanner/eval/graded.csv

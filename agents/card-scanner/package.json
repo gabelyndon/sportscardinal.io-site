@@ -1,0 +1,23 @@
+{
+  "name": "card-scanner",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "description": "eBay Browse API client for the SportsCardinal card scanner agent",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "scan": "node --env-file-if-exists=.env src/cli.ts",
+    "extract": "node --env-file-if-exists=.env src/extract-cli.ts",
+    "test": "node --test \"test/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
+  }
+}
