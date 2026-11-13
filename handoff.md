@@ -27,7 +27,7 @@ Stages:
 - **Cert numbers: 10 of 10 correct** across PSA, BGS and SGC, photos from 2023–2026. Readable from the 1800px resized image. SGC's cert is tiny print in the label corner — the likeliest place for errors on blurrier photos.
 - **Grades matched `cards.json` 10 of 10** once PSA wording is stripped.
 - **Anti-inference rule held on every card.** Back-of-slab photos return the cert with a null grade (correct — the grade label isn't in frame). The "PSA ?" entry in the catalogue is that same case: cert-only record.
-- **Raw cards: player and brand are read reliably, but year and card number are mostly null** — they're printed on the back, and **most raw cards were only photographed from the front.** Names were confirmed printed on the card for the faces checked (Sanders, Jeter), so no recognition-from-face.
+- **Raw cards: player and brand are read reliably, but year and card number are mostly null** — they're printed on the back, and **most raw cards were only photographed from the front.** Names were confirmed printed at the bottom of the cards for the faces checked (Sanders, Jeter) (confirmed by me against the photos on Nov 13), so no recognition-from-face.
 - A "Turn Back the Clock" card shows 1983 in its design; the model correctly left `year` null. Keep that behavior.
 - **Not yet tested: glare or steep-angle labels.** Plan is to shoot 2–3 deliberate glare/angle slab photos rather than search the 945.
 
@@ -55,7 +55,7 @@ Photo ↔ card mapping: `card-staging/review.csv` maps each exact original filen
 All branches on GitHub except `main-pre-polish`.
 
 - **`main`** — deployed trunk at 2bafd5f.
-- **`showcase`** — current working branch. Descends from `real-cards`. Holds 46bcca6 (stages 1–2, resize, graded.csv, .gitignore exception), 2f1a53f (eBay tests) and 269788e (`.io → .ai` display name; `src/lib/site.ts` — display name only; `site:` in astro.config, canonical tags, og:url and the Worker name untouched until DNS cutover).
+- **`showcase`** — current working branch. Descends from `real-cards`. Holds 46bcca6 (stages 1–2, resize, graded.csv, .gitignore exception), 2f1a53f (eBay tests) and 269788e (`.io → .ai` display name; `src/lib/site.ts` — display name only; canonical tags, og:url and the Worker name untouched until DNS cutover. astro.config has no `site:` setting yet; add it, as the .ai URL, as part of the DNS cutover).
 - **`real-cards`** — 195 catalogued cards as the game deck.
 - **`main-local`** — pre-force-push backup. Disposable.
 - **`main-pre-polish`** — local only, bc27169. GH007 blocks it (old email). Keep or delete; nothing depends on it.
@@ -78,6 +78,6 @@ Commits use the GitHub noreply address. Older commits keep the old one — not r
 
 ## Still open
 
-- All 195 prices are AI estimates (`priceSource: "estimate"`); 55 carry a `notes` flag.
+- All 195 records have `priceSource: "demo estimate"` (195 of 195, no other value; all `priceAsOf` 2026-09-16), so every price is an estimate, not market data. 69 records carry a non-empty `notes` field.
 - Keep the iridescent cardinal or regenerate naturalistic? (logo, favicon, app icon)
 - No contact route anywhere on the site.
